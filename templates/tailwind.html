@@ -6,7 +6,41 @@
     <meta name="viewport" content="device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
-  {{end}} {{define "footer"}}
-  <body></body>
+  <body class="h-screen relative">
+    <header class="bg-gradient-to-r from-blue-800 to-indigo-800 text-white">
+      <nav class="px-8 py-6 flex items-center space-x-12">
+        <div class="text-4xl font-serif">Lenslocked</div>
+        <div class="flex-grow">
+          <a class="text-lg font-semibold hover:text-blue-100 pr-8" href="/"
+            >Home</a
+          >
+          <a
+            class="text-lg font-semibold hover:text-blue-100 pr-8"
+            href="/contact"
+            >Contact</a
+          >
+          <a class="text-lg font-semibold hover:text-blue-100 pr-8" href="/faq"
+            >FAQ</a
+          >
+        </div>
+        <div class="space-x-4">
+          <a href="#">Sign in</a>
+          <a class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded" href="#"
+            >Sign up</a
+          >
+        </div>
+      </nav>
+    </header>
+    <main>{{end}} {{define "footer"}}</main>
+    <footer
+      class="bg-gradient-to-r from-indigo-800 to-blue-800 text-white absolute bottom-0 w-full"
+    >
+      <nav class="py-2 flex items-center justify-center">
+        <div class="text-sm font-stretch-condensed underline">
+          Copyright (c) 2026 Konrad Klawon. All Rights Reserved.
+        </div>
+      </nav>
+    </footer>
+  </body>
 </html>
 {{end}}
