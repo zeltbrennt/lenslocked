@@ -3,21 +3,19 @@ package controllers
 import (
 	"html/template"
 	"net/http"
-
-	"github.com/zeltbrennt/lenslocked/views"
 )
 
 type Static struct {
-	Template views.Template
+	Template Executer
 }
 
-func StaticHandler(tpl views.Template) http.HandlerFunc {
+func StaticHandler(tpl Executer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tpl.Execute(w, nil)
 	}
 }
 
-func FAQ(tpl views.Template) http.HandlerFunc {
+func FAQ(tpl Executer) http.HandlerFunc {
 	questions := []struct {
 		Question string
 		Answer   template.HTML
