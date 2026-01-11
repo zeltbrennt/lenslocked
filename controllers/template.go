@@ -2,6 +2,6 @@ package controllers
 
 import "net/http"
 
-type Template interface {
+type Executer interface {
 	Execute(http.ResponseWriter, any)
 }

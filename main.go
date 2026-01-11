@@ -15,18 +15,23 @@ import (
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+
 	r.Get("/", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "home.html", "tailwind.html"))))
 	r.Get("/contact", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "contact.html", "tailwind.html"))))
 	r.Get("/faq", controllers.FAQ(
 		views.Must(views.ParseFS(templates.FS, "faq.html", "tailwind.html"))))
-	var usersC controllers.Users
-	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.html", "tailwind.html"))
-	r.Get("/signup", usersC.New)
+
+	var userController controllers.Users
+	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "tailwind.html"))
+
+	r.Get("/signup", userController.Signup)
+	r.Post("/signup", userController.Create)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
+
 	fmt.Println("Starting Server on :3000")
 	log.Fatal(http.ListenAndServe(":3000", r))
 }
