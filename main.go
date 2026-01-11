@@ -1,0 +1,30 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/zeltbrennt/lenslocked/controllers"
+	"github.com/zeltbrennt/lenslocked/templates"
+	"github.com/zeltbrennt/lenslocked/views"
+)
+
+func main() {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	homeTpl := views.Must(views.ParseFS(templates.FS, "home.html"))
+	contactTpl := views.Must(views.ParseFS(templates.FS, "contact.html"))
+	faqTpl := views.Must(views.ParseFS(templates.FS, "faq.html"))
+
+	r.Get("/", controllers.StaticHandler(homeTpl))
+	r.Get("/contact", controllers.StaticHandler(contactTpl))
+	r.Get("/faq", controllers.StaticHandler(faqTpl))
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "Page not found", http.StatusNotFound)
+	})
+	fmt.Println("Starting Server on :3000")
+	log.Fatal(http.ListenAndServe(":3000", r))
+}
