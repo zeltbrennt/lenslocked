@@ -22,7 +22,7 @@ func FAQ(tpl Executer) http.HandlerFunc {
 	}{
 		{
 			Question: "Is there a free version?",
-			Answer:   "Yes! W offer a free trial of 30 days on any paid plans",
+			Answer:   "Yes! We offer a free trial of 30 days on any paid plans",
 		},
 		{
 			Question: "What are your support hours?",
@@ -30,7 +30,7 @@ func FAQ(tpl Executer) http.HandlerFunc {
 		},
 		{
 			Question: "How do I contact support?",
-			Answer:   `Email us - <a href="mailto:support@lenslocked.com">support@lenslocked.com</a>`,
+			Answer:   `Email us - <a class="underline" href="mailto:support@lenslocked.com">support@lenslocked.com</a>`,
 		},
 	}
 
