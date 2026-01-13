@@ -30,11 +30,15 @@ func main() {
 	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
 	userController.UserService = &userService
 
+	// CSRF
+	protection := http.NewCrossOriginProtection()
+	protection.AddTrustedOrigin("http://localhost:5173")
+
 	// setup router
 	r := chi.NewRouter()
-	protection := http.NewCrossOriginProtection()
-	r.Use(protection.Handler)
 	r.Use(middleware.Logger)
+	r.Use(protection.Handler)
+	r.Use(mw.SetHeaders)
 
 	r.Get("/", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "home.html", "layout.html"))))
@@ -46,7 +50,7 @@ func main() {
 	r.Post("/signin", userController.HandleSignin)
 	r.Get("/signup", userController.SignupPage)
 	r.Post("/signup", userController.HandleSignup)
-	r.Get("/cookie", userController.CurrentUser)
+	r.Get("/current", userController.CurrentUser)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
