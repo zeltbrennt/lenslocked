@@ -31,6 +31,8 @@ func main() {
 
 	// setup router
 	r := chi.NewRouter()
+	protection := http.NewCrossOriginProtection()
+	r.Use(protection.Handler)
 	r.Use(middleware.Logger)
 
 	r.Get("/", controllers.StaticHandler(
