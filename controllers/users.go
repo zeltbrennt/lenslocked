@@ -16,7 +16,7 @@ type Users struct {
 }
 
 // GET
-func (u Users) Signup(w http.ResponseWriter, r *http.Request) {
+func (u Users) SignupPage(w http.ResponseWriter, r *http.Request) {
 	var data struct {
 		Email string
 	}
@@ -24,8 +24,7 @@ func (u Users) Signup(w http.ResponseWriter, r *http.Request) {
 	u.Templates.Signup.Execute(w, data)
 }
 
-// POST
-func (u Users) Create(w http.ResponseWriter, r *http.Request) {
+func (u Users) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 	user, err := u.UserService.Create(email, password)
@@ -37,11 +36,26 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "user created: %+v", user)
 }
 
-// Get
-func (u Users) Signin(w http.ResponseWriter, r *http.Request) {
+func (u Users) SigninPage(w http.ResponseWriter, r *http.Request) {
 	var data struct {
 		Email string
 	}
 	data.Email = r.FormValue("email")
 	u.Templates.Signin.Execute(w, data)
+}
+
+func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		email    string
+		password string
+	}
+	data.email = r.FormValue("email")
+	data.password = r.FormValue("password")
+	user, err := u.UserService.Authenticate(data.email, data.password)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "User authenticated: %+v", user)
 }

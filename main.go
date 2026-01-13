@@ -39,9 +39,10 @@ func main() {
 		views.Must(views.ParseFS(templates.FS, "contact.html", "layout.html"))))
 	r.Get("/faq", controllers.FAQ(
 		views.Must(views.ParseFS(templates.FS, "faq.html", "layout.html"))))
-	r.Get("/signin", userController.Signin)
-	r.Get("/signup", userController.Signup)
-	r.Post("/signup", userController.Create)
+	r.Get("/signin", userController.SigninPage)
+	r.Post("/signin", userController.HandleSignin)
+	r.Get("/signup", userController.SignupPage)
+	r.Post("/signup", userController.HandleSignup)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
