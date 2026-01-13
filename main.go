@@ -25,10 +25,14 @@ func main() {
 	userService := models.UserService{
 		DB: db,
 	}
+	sessionService := models.SessionService{
+		DB: db,
+	}
 	var userController controllers.Users
 	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "layout.html"))
 	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
 	userController.UserService = &userService
+	userController.SessionService = &sessionService
 
 	// CSRF
 	protection := http.NewCrossOriginProtection()
