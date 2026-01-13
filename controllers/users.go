@@ -12,7 +12,8 @@ type Users struct {
 		Signup Executer
 		Signin Executer
 	}
-	UserService *models.UserService
+	UserService    *models.UserService
+	SessionService *models.SessionService
 }
 
 func (u Users) SignupPage(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +33,15 @@ func (u Users) HandleSignup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "user created: %+v", user)
+	session, err := u.SessionService.Create(user.ID)
+	if err != nil {
+		fmt.Println(err)
+		// TODO: Warning here
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+	setCookie(w, cookieSession, session.NewToken)
+	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
 
 func (u Users) SigninPage(w http.ResponseWriter, r *http.Request) {
@@ -56,23 +65,28 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
-	cookie := http.Cookie{
-		Name:     "email",
-		Value:    user.Email,
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteDefaultMode,
+	session, err := u.SessionService.Create(user.ID)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
 	}
-	http.SetCookie(w, &cookie)
+	setCookie(w, cookieSession, session.NewToken)
 	fmt.Fprintf(w, "User authenticated: %+v", user)
 }
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
-	email, err := r.Cookie("email")
+	token, err := readCookie(r, "session")
 	if err != nil {
-		http.Redirect(w, r, "/signin", http.StatusMovedPermanently)
+		fmt.Println(err)
+		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
-	fmt.Fprintf(w, "headers: %s/n", r.Header)
-	fmt.Fprintf(w, "email cookie: %s\n", email.Value)
+	user, err := u.SessionService.User(token)
+	if err != nil {
+		fmt.Println(err)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+	fmt.Fprintf(w, "current User: %s\n", user.Email)
 }
