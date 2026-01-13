@@ -43,6 +43,7 @@ func main() {
 	r.Post("/signin", userController.HandleSignin)
 	r.Get("/signup", userController.SignupPage)
 	r.Post("/signup", userController.HandleSignup)
+	r.Get("/cookie", userController.CurrentUser)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
