@@ -70,7 +70,7 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	email, err := r.Cookie("email")
 	if err != nil {
-		fmt.Fprint(w, "email cookie could not be read")
+		http.Redirect(w, r, "/signin", http.StatusMovedPermanently)
 		return
 	}
 	fmt.Fprintf(w, "headers: %s/n", r.Header)

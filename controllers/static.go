@@ -5,10 +5,6 @@ import (
 	"net/http"
 )
 
-type Static struct {
-	Template Executer
-}
-
 func StaticHandler(tpl Executer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tpl.Execute(w, nil)
