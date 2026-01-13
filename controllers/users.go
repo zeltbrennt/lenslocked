@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/zeltbrennt/lenslocked/templates/models"
+	"github.com/zeltbrennt/lenslocked/models"
 )
 
 type Users struct {

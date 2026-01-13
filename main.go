@@ -8,8 +8,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/zeltbrennt/lenslocked/controllers"
+	mw "github.com/zeltbrennt/lenslocked/middleware"
+	"github.com/zeltbrennt/lenslocked/models"
 	"github.com/zeltbrennt/lenslocked/templates"
-	"github.com/zeltbrennt/lenslocked/templates/models"
 	"github.com/zeltbrennt/lenslocked/views"
 )
 
