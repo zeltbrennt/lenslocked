@@ -9,10 +9,27 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/zeltbrennt/lenslocked/controllers"
 	"github.com/zeltbrennt/lenslocked/templates"
+	"github.com/zeltbrennt/lenslocked/templates/models"
 	"github.com/zeltbrennt/lenslocked/views"
 )
 
 func main() {
+	// setup controllers
+	cfg := models.DefaultPostgresConfig()
+	db, err := models.Open(cfg)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	userService := models.UserService{
+		DB: db,
+	}
+	var userController controllers.Users
+	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "layout.html"))
+	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
+	userController.UserService = &userService
+
+	// setup router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
@@ -22,10 +39,7 @@ func main() {
 		views.Must(views.ParseFS(templates.FS, "contact.html", "layout.html"))))
 	r.Get("/faq", controllers.FAQ(
 		views.Must(views.ParseFS(templates.FS, "faq.html", "layout.html"))))
-
-	var userController controllers.Users
-	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "layout.html"))
-
+	r.Get("/signin", userController.Signin)
 	r.Get("/signup", userController.Signup)
 	r.Post("/signup", userController.Create)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
