@@ -1,15 +1,9 @@
 package models
 
 import (
-	"crypto/sha256"
 	"database/sql"
-	"encoding/base64"
 	"fmt"
-
-	"github.com/zeltbrennt/lenslocked/rand"
 )
-
-const minBytesPerToken = 32
 
 type Session struct {
 	ID               int
@@ -19,26 +13,32 @@ type Session struct {
 }
 
 type SessionService struct {
-	DB            *sql.DB
-	BytesPerToken int
+	DB *sql.DB
+	TM TokenManager
 }
 
 func (ss *SessionService) Create(UserId int) (*Session, error) {
-	bytesPerToken := ss.BytesPerToken
-	bytesPerToken = max(bytesPerToken, minBytesPerToken)
-	token, err := rand.SessionToken(bytesPerToken)
+	token, hash, err := ss.TM.New()
 	if err != nil {
-		return nil, fmt.Errorf("create: %w", err)
+		return nil, fmt.Errorf("creating Token: %w", err)
 	}
 	session := Session{
 		UserID:           UserId,
 		NewToken:         token,
-		CurrentTokenHash: ss.hash(token),
+		CurrentTokenHash: hash,
 	}
-	row := ss.DB.QueryRow(`INSERT INTO sessions (user_id, token_hash)
+	row := ss.DB.QueryRow(`
+		UPDATE sessions 
+		SET token_hash = $1
+		WHERE user_id = $2 
+		RETURNING id;`, session.CurrentTokenHash, session.UserID)
+	err = row.Scan(&session.ID)
+	if err == sql.ErrNoRows {
+		row = ss.DB.QueryRow(`INSERT INTO sessions (user_id, token_hash)
 		VALUES ($1, $2)
 		RETURNING id;`, session.UserID, session.CurrentTokenHash)
-	err = row.Scan(&session.ID)
+		err = row.Scan(&session.ID)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
@@ -46,10 +46,18 @@ func (ss *SessionService) Create(UserId int) (*Session, error) {
 }
 
 func (ss *SessionService) User(token string) (*User, error) {
-	return nil, nil
-}
+	// TODO: Implement SessionService.User
+	tokenHash := ss.TM.Hash(token)
+	var user User
+	row := ss.DB.QueryRow(`
+		SELECT users.id, users.email
+		FROM sessions
+		JOIN users ON sessions.user_id = users.id 
+		WHERE token_hash = $1`, tokenHash)
+	err := row.Scan(&user.ID, &user.Email)
+	if err != nil {
+		return nil, fmt.Errorf("getting session: %w", err)
+	}
 
-func (ss *SessionService) hash(token string) string {
-	tokenHash := sha256.Sum256([]byte(token))
-	return base64.URLEncoding.EncodeToString(tokenHash[:])
+	return &user, nil
 }

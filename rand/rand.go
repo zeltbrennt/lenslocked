@@ -26,6 +26,6 @@ func generateString(n int) (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-func SessionToken(n int) (string, error) {
+func RandomString(n int) (string, error) {
 	return generateString(n)
 }
