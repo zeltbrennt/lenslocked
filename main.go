@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/zeltbrennt/lenslocked/controllers"
 	mw "github.com/zeltbrennt/lenslocked/middleware"
+	"github.com/zeltbrennt/lenslocked/migrations"
 	"github.com/zeltbrennt/lenslocked/models"
 	"github.com/zeltbrennt/lenslocked/templates"
 	"github.com/zeltbrennt/lenslocked/views"
@@ -24,7 +25,7 @@ func main() {
 	defer db.Close()
 
 	// db migrations
-	err = models.Migrate(db, "migrations")
+	err = models.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
 		panic(err)
 	}
