@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/zeltbrennt/lenslocked/models"
@@ -79,7 +78,6 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	token, err := readCookie(r, "session")
-	log.Println("here")
 	if err != nil {
 		fmt.Println(err)
 		http.Redirect(w, r, "/signin", http.StatusFound)
@@ -92,4 +90,21 @@ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u.Templates.CurrentUser.Execute(w, *user)
+}
+
+func (u Users) HandleSignOut(w http.ResponseWriter, r *http.Request) {
+	token, err := readCookie(r, cookieSession)
+	if err != nil {
+		fmt.Println(err)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+	err = u.SessionService.Delete(token)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	deleteCookie(w, cookieSession)
+	http.Redirect(w, r, "/signin", http.StatusFound)
 }

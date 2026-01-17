@@ -45,8 +45,18 @@ func (ss *SessionService) Create(UserId int) (*Session, error) {
 	return &session, nil
 }
 
+func (ss *SessionService) Delete(token string) error {
+	tokenHash := ss.TM.Hash(token)
+	_, err := ss.DB.Exec(`
+		DELETE FROM sessions
+		WHERE token_hash = $1`, tokenHash)
+	if err != nil {
+		return fmt.Errorf("delete: %w", err)
+	}
+	return nil
+}
+
 func (ss *SessionService) User(token string) (*User, error) {
-	// TODO: Implement SessionService.User
 	tokenHash := ss.TM.Hash(token)
 	var user User
 	row := ss.DB.QueryRow(`
