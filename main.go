@@ -27,12 +27,15 @@ func main() {
 	}
 	sessionService := models.SessionService{
 		DB: db,
+		TM: models.TokenManager{BytesPerToken: 32},
 	}
 	var userController controllers.Users
 	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "layout.html"))
 	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
+	userController.Templates.CurrentUser = views.Must(views.ParseFS(templates.FS, "currentUser.html", "layout.html"))
 	userController.UserService = &userService
 	userController.SessionService = &sessionService
+	// TODO: implement a test to make sure, all Services and Templates are set
 
 	// CSRF
 	protection := http.NewCrossOriginProtection()

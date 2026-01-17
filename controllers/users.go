@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/zeltbrennt/lenslocked/models"
@@ -9,8 +10,9 @@ import (
 
 type Users struct {
 	Templates struct {
-		Signup Executer
-		Signin Executer
+		Signup      Executer
+		Signin      Executer
+		CurrentUser Executer
 	}
 	UserService    *models.UserService
 	SessionService *models.SessionService
@@ -72,11 +74,12 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	setCookie(w, cookieSession, session.NewToken)
-	fmt.Fprintf(w, "User authenticated: %+v", user)
+	http.Redirect(w, r, "/current", http.StatusFound)
 }
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	token, err := readCookie(r, "session")
+	log.Println("here")
 	if err != nil {
 		fmt.Println(err)
 		http.Redirect(w, r, "/signin", http.StatusFound)
@@ -88,5 +91,5 @@ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
-	fmt.Fprintf(w, "current User: %s\n", user.Email)
+	u.Templates.CurrentUser.Execute(w, *user)
 }
