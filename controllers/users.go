@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/zeltbrennt/lenslocked/models"
@@ -30,13 +30,13 @@ func (u Users) HandleSignup(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	user, err := u.UserService.Create(email, password)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 	session, err := u.SessionService.Create(user.ID)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		// TODO: Warning here
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
@@ -62,30 +62,30 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 	data.password = r.FormValue("password")
 	user, err := u.UserService.Authenticate(data.email, data.password)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 	session, err := u.SessionService.Create(user.ID)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
 	setCookie(w, cookieSession, session.NewToken)
-	http.Redirect(w, r, "/current", http.StatusFound)
+	http.Redirect(w, r, "/user/me", http.StatusFound)
 }
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	token, err := readCookie(r, "session")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
 	user, err := u.SessionService.User(token)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
@@ -95,13 +95,13 @@ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 func (u Users) HandleSignOut(w http.ResponseWriter, r *http.Request) {
 	token, err := readCookie(r, cookieSession)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
 	err = u.SessionService.Delete(token)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}

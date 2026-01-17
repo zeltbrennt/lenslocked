@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -65,12 +64,12 @@ func main() {
 	r.Post("/signin", userController.HandleSignin)
 	r.Get("/signup", userController.SignupPage)
 	r.Post("/signup", userController.HandleSignup)
-	r.Get("/current", userController.CurrentUser)
+	r.Get("/user/me", userController.CurrentUser)
 	r.Post("/signout", userController.HandleSignOut)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
 
-	fmt.Println("Starting Server on :3000")
+	log.Println("Starting Server on :3000")
 	log.Fatal(http.ListenAndServe(":3000", r))
 }
