@@ -43,7 +43,7 @@ func (u Users) HandleSignup(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
-	setCookie(w, cookieSession, session.NewToken)
+	cookie.SetCookie(w, cookie.CookieSession, session.NewToken)
 	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
 
@@ -79,15 +79,8 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
-	token, err := readCookie(r, "session")
-	if err != nil {
-		log.Println(err)
-		http.Redirect(w, r, "/signin", http.StatusFound)
-		return
-	}
-	user, err := u.SessionService.User(token)
-	if err != nil {
-		log.Println(err)
+	user := context.User(r.Context())
+	if user == nil {
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}

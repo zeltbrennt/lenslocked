@@ -47,12 +47,17 @@ func main() {
 	// CSRF
 	protection := http.NewCrossOriginProtection()
 	protection.AddTrustedOrigin("http://localhost:5173")
-
+	// context
+	//
+	umw := mw.UserMiddleware{
+		SessionService: &sessionService,
+	}
 	// setup router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(protection.Handler)
 	r.Use(mw.SetHeaders)
+	r.Use(umw.SetUser)
 
 	r.Get("/", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "home.html", "layout.html"))))

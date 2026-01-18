@@ -29,7 +29,7 @@ func (ss *SessionService) Create(UserId int) (*Session, error) {
 	}
 	row := ss.DB.QueryRow(`
 		INSERT INTO sessions (user_id, token_hash)
-		VALUES ($1, $2) ON CONFLICT DO
+		VALUES ($1, $2) ON CONFLICT (user_id) DO
 			UPDATE
 			SET token_hash = $2
 		RETURNING id;`, session.UserID, session.CurrentTokenHash)
