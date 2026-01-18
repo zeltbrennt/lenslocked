@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/zeltbrennt/lenslocked/context"
+	"github.com/zeltbrennt/lenslocked/cookie"
 	"github.com/zeltbrennt/lenslocked/models"
 )
 
@@ -72,7 +74,7 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
-	setCookie(w, cookieSession, session.NewToken)
+	cookie.SetCookie(w, cookie.CookieSession, session.NewToken)
 	http.Redirect(w, r, "/user/me", http.StatusFound)
 }
 
@@ -93,7 +95,7 @@ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) HandleSignOut(w http.ResponseWriter, r *http.Request) {
-	token, err := readCookie(r, cookieSession)
+	token, err := cookie.ReadCookie(r, cookie.CookieSession)
 	if err != nil {
 		log.Println(err)
 		http.Redirect(w, r, "/signin", http.StatusFound)
@@ -105,6 +107,6 @@ func (u Users) HandleSignOut(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
-	deleteCookie(w, cookieSession)
+	cookie.DeleteCookie(w, cookie.CookieSession)
 	http.Redirect(w, r, "/signin", http.StatusFound)
 }
