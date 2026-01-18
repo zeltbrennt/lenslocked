@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/zeltbrennt/lenslocked/context"
@@ -16,6 +17,12 @@ func (umw UserMiddleware) SetUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := cookie.ReadCookie(r, cookie.CookieSession)
 		if err != nil {
+			log.Println(err)
+			next.ServeHTTP(w, r)
+			return
+		}
+		if token == "" {
+			log.Println("empty token")
 			next.ServeHTTP(w, r)
 			return
 		}
