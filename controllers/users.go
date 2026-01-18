@@ -24,7 +24,7 @@ func (u Users) SignupPage(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data.Email = r.FormValue("email")
-	u.Templates.Signup.Execute(w, data)
+	u.Templates.Signup.Execute(w, r, data)
 }
 
 func (u Users) HandleSignup(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +52,7 @@ func (u Users) SigninPage(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 	data.Email = r.FormValue("email")
-	u.Templates.Signin.Execute(w, data)
+	u.Templates.Signin.Execute(w, r, data)
 }
 
 func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +80,7 @@ func (u Users) HandleSignin(w http.ResponseWriter, r *http.Request) {
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	user := context.User(r.Context())
-	u.Templates.CurrentUser.Execute(w, *user)
+	u.Templates.CurrentUser.Execute(w, r, *user)
 }
 
 func (u Users) HandleSignOut(w http.ResponseWriter, r *http.Request) {

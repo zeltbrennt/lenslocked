@@ -3,5 +3,5 @@ package controllers
 import "net/http"
 
 type Executer interface {
-	Execute(http.ResponseWriter, any)
+	Execute(http.ResponseWriter, *http.Request, any)
 }
