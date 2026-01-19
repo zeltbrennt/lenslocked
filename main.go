@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -42,11 +43,11 @@ func main() {
 		DB: db,
 		TM: models.TokenManager{BytesPerToken: 32},
 	}
-	mailService := models.NewMailService(models.SMTPConfigFromEnv())
+	_ = models.NewMailService(models.SMTPConfigFromEnv())
 
 	// setup middleware
 	protection := http.NewCrossOriginProtection()
-	protection.AddTrustedOrigin("http://localhost:5173")
+	protection.AddTrustedOrigin(os.Getenv("HOST"))
 	umw := mw.UserMiddleware{
 		SessionService: &sessionService,
 	}

@@ -44,7 +44,7 @@ func (u Users) HandleSignup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cookie.SetCookie(w, cookie.CookieSession, session.NewToken)
-	http.Redirect(w, r, "/users/me", http.StatusFound)
+	http.Redirect(w, r, "/user/me", http.StatusFound)
 }
 
 func (u Users) SigninPage(w http.ResponseWriter, r *http.Request) {
