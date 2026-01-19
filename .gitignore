@@ -1,3 +1,4 @@
 cmd/exp/*
 cmd/bcrypt/*
 tmp/*
+.env
