@@ -2,6 +2,9 @@ package models
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strconv"
 
 	"github.com/go-mail/mail/v2"
 )
@@ -20,6 +23,23 @@ type SMTPConfig struct {
 	Port     int
 	Username string
 	Password string
+}
+
+func SMTPConfigFromEnv() SMTPConfig {
+	host := os.Getenv("SMTP_HOST")
+	portStr := os.Getenv("SMTP_PORT")
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		log.Fatal("error in SMTP config: %w", err)
+	}
+	username := os.Getenv("SMTP_USERNAME")
+	password := os.Getenv("SMTP_PASSWORD")
+	return SMTPConfig{
+		Host:     host,
+		Port:     port,
+		Username: username,
+		Password: password,
+	}
 }
 
 func NewMailService(config SMTPConfig) *EmailService {

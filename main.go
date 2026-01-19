@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 	"github.com/zeltbrennt/lenslocked/controllers"
 	mw "github.com/zeltbrennt/lenslocked/middleware"
 	"github.com/zeltbrennt/lenslocked/migrations"
@@ -15,6 +16,11 @@ import (
 )
 
 func main() {
+	// env
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	// setup DB
 	cfg := models.DefaultPostgresConfig()
 	db, err := models.Open(cfg)
@@ -36,6 +42,7 @@ func main() {
 		DB: db,
 		TM: models.TokenManager{BytesPerToken: 32},
 	}
+	mailService := models.NewMailService(models.SMTPConfigFromEnv())
 
 	// setup middleware
 	protection := http.NewCrossOriginProtection()
