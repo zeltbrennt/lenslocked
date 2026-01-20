@@ -28,47 +28,41 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
-
 	err = models.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
 		panic(err)
 	}
-
 	// setup services
-	userService := models.UserService{
+	userService := &models.UserService{
 		DB: db,
 	}
-	sessionService := models.SessionService{
+	sessionService := &models.SessionService{
 		DB: db,
 		TM: models.TokenManager{BytesPerToken: 32},
 	}
-	_ = models.NewMailService(cfg.SMTP)
-
+	emailService := models.NewMailService(cfg.SMTP)
 	// setup middleware
 	protection := http.NewCrossOriginProtection()
-	protection.AddTrustedOrigin(cfg.Server.Host)
 	umw := mw.UserMiddleware{
-		SessionService: &sessionService,
+		SessionService: sessionService,
 	}
-
 	// setup controllers
 	userController := controllers.Users{
-		UserService:    &userService,
-		SessionService: &sessionService,
+		UserService:    userService,
+		SessionService: sessionService,
+		EmailService:   emailService,
 	}
 	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "layout.html"))
 	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
 	userController.Templates.CurrentUser = views.Must(views.ParseFS(templates.FS, "currentUser.html", "layout.html"))
 	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.html", "layout.html"))
 	// TODO: implement a test to make sure, all Services and Templates are set
-
 	// setup router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(protection.Handler)
 	r.Use(mw.SetHeaders)
 	r.Use(umw.SetUser)
-
 	// setup routes
 	// static
 	r.Get("/", controllers.StaticHandler(
