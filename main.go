@@ -56,6 +56,7 @@ func main() {
 	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
 	userController.Templates.CurrentUser = views.Must(views.ParseFS(templates.FS, "currentUser.html", "layout.html"))
 	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.html", "layout.html"))
+	userController.Templates.CheckYourMail = views.Must(views.ParseFS(templates.FS, "check-your-mail.html", "layout.html"))
 	// TODO: implement a test to make sure, all Services and Templates are set
 	// setup router
 	r := chi.NewRouter()
