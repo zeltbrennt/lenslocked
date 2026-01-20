@@ -3,6 +3,8 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"net/url"
+	"os"
 
 	"github.com/zeltbrennt/lenslocked/context"
 	"github.com/zeltbrennt/lenslocked/cookie"
@@ -11,12 +13,16 @@ import (
 
 type Users struct {
 	Templates struct {
-		Signup      Executer
-		Signin      Executer
-		CurrentUser Executer
+		Signup         Executer
+		Signin         Executer
+		CurrentUser    Executer
+		ForgotPassword Executer
+		CheckYourMail  Executer
 	}
-	UserService    *models.UserService
-	SessionService *models.SessionService
+	UserService          *models.UserService
+	SessionService       *models.SessionService
+	PasswordResetService *models.PasswordResetService
+	EmailService         *models.EmailService
 }
 
 func (u Users) SignupPage(w http.ResponseWriter, r *http.Request) {
@@ -98,4 +104,36 @@ func (u Users) HandleSignOut(w http.ResponseWriter, r *http.Request) {
 	}
 	cookie.DeleteCookie(w, cookie.CookieSession)
 	http.Redirect(w, r, "/signin", http.StatusFound)
+}
+
+func (u Users) ForgotPasswordPage(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+	data.Email = r.FormValue("email")
+	u.Templates.ForgotPassword.Execute(w, r, data)
+}
+
+func (u Users) HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+	data.Email = r.FormValue("email")
+	pwReset, err := u.PasswordResetService.Create(data.Email)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	vals := url.Values{
+		"token": {pwReset.Token},
+	}
+	resetURL := os.Getenv("DOMAIN") + "/reset-pw?" + vals.Encode()
+	err = u.EmailService.ForgotPassword(data.Email, resetURL)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	u.Templates.CheckYourMail.Execute(w, r, data)
 }
