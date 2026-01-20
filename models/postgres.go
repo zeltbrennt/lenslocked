@@ -10,27 +10,22 @@ import (
 )
 
 type PostgresConfig struct {
-	host     string
-	port     int
-	user     string
-	password string
-	dbname   string
-	sslmode  string
+	Host     string
+	Port     int
+	User     string
+	Password string
+	Dbname   string
+	Sslmode  string
 }
 
 func (pc PostgresConfig) String() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", pc.host, pc.port, pc.user, pc.password, pc.dbname, pc.sslmode)
-}
-
-func DefaultPostgresConfig() PostgresConfig {
-	return PostgresConfig{
-		"localhost",
-		5432,
-		"baloo",
-		"junglebook",
-		"lenslocked",
-		"disable",
-	}
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		pc.Host,
+		pc.Port,
+		pc.User,
+		pc.Password,
+		pc.Dbname,
+		pc.Sslmode)
 }
 
 func Open(config PostgresConfig) (*sql.DB, error) {

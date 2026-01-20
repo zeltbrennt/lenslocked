@@ -1,13 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/joho/godotenv"
+	"github.com/zeltbrennt/lenslocked/config"
 	"github.com/zeltbrennt/lenslocked/controllers"
 	mw "github.com/zeltbrennt/lenslocked/middleware"
 	"github.com/zeltbrennt/lenslocked/migrations"
@@ -17,14 +17,13 @@ import (
 )
 
 func main() {
-	// env
-	err := godotenv.Load()
+	// init config
+	cfg, err := config.LoadFromEnv()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		panic(err)
 	}
 	// setup DB
-	cfg := models.DefaultPostgresConfig()
-	db, err := models.Open(cfg)
+	db, err := models.Open(cfg.PSQL)
 	if err != nil {
 		panic(err)
 	}
@@ -43,11 +42,11 @@ func main() {
 		DB: db,
 		TM: models.TokenManager{BytesPerToken: 32},
 	}
-	_ = models.NewMailService(models.SMTPConfigFromEnv())
+	_ = models.NewMailService(cfg.SMTP)
 
 	// setup middleware
 	protection := http.NewCrossOriginProtection()
-	protection.AddTrustedOrigin(os.Getenv("HOST"))
+	protection.AddTrustedOrigin(cfg.Server.Host)
 	umw := mw.UserMiddleware{
 		SessionService: &sessionService,
 	}
@@ -93,7 +92,7 @@ func main() {
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
-
-	log.Println("Starting Server on :3000")
-	log.Fatal(http.ListenAndServe(":3000", r))
+	srvStr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
+	log.Println("Starting Server on", srvStr)
+	log.Fatal(http.ListenAndServe(srvStr, r))
 }

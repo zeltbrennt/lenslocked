@@ -128,6 +128,7 @@ func (u Users) HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
 	vals := url.Values{
 		"token": {pwReset.Token},
 	}
+	// TODO: use config type
 	resetURL := os.Getenv("DOMAIN") + "/reset-pw?" + vals.Encode()
 	err = u.EmailService.ForgotPassword(data.Email, resetURL)
 	if err != nil {
