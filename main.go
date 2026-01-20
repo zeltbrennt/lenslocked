@@ -60,6 +60,7 @@ func main() {
 	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "layout.html"))
 	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
 	userController.Templates.CurrentUser = views.Must(views.ParseFS(templates.FS, "currentUser.html", "layout.html"))
+	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.html", "layout.html"))
 	// TODO: implement a test to make sure, all Services and Templates are set
 
 	// setup router
@@ -87,6 +88,8 @@ func main() {
 		r.Get("/", userController.CurrentUser)
 	})
 	r.Post("/signout", userController.HandleSignOut)
+	r.Get("/forgot-pw", userController.ForgotPasswordPage)
+	r.Post("/forgot-pw", userController.HandleForgotPassword)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
