@@ -57,6 +57,7 @@ func main() {
 	userController.Templates.CurrentUser = views.Must(views.ParseFS(templates.FS, "currentUser.html", "layout.html"))
 	userController.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "forgot-pw.html", "layout.html"))
 	userController.Templates.CheckYourMail = views.Must(views.ParseFS(templates.FS, "check-your-mail.html", "layout.html"))
+	userController.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "reset-pw.html", "layout.html"))
 	// TODO: implement a test to make sure, all Services and Templates are set
 	// setup router
 	r := chi.NewRouter()
@@ -84,6 +85,8 @@ func main() {
 	r.Post("/signout", userController.HandleSignOut)
 	r.Get("/forgot-pw", userController.ForgotPasswordPage)
 	r.Post("/forgot-pw", userController.HandleForgotPassword)
+	r.Get("/reset-pw", userController.ResetPasswordPage)
+	r.Post("/reset-pw", userController.HandleResetPassword)
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})

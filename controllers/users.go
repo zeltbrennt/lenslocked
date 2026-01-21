@@ -18,6 +18,7 @@ type Users struct {
 		CurrentUser    Executer
 		ForgotPassword Executer
 		CheckYourMail  Executer
+		ResetPassword  Executer
 	}
 	UserService          *models.UserService
 	SessionService       *models.SessionService
@@ -137,4 +138,35 @@ func (u Users) HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u.Templates.CheckYourMail.Execute(w, r, data)
+}
+
+func (u Users) ResetPasswordPage(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Token string
+	}
+	data.Token = r.FormValue("token")
+	u.Templates.ResetPassword.Execute(w, r, data)
+}
+
+func (u Users) HandleResetPassword(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Token    string
+		Password string
+	}
+	data.Token = r.FormValue("token")
+	data.Password = r.FormValue("password")
+	user, err := u.PasswordResetService.Consume(data.Token)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	session, err := u.SessionService.Create(user.ID)
+	if err != nil {
+		log.Println(err)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+	cookie.SetCookie(w, cookie.CookieSession, session.NewToken)
+	http.Redirect(w, r, "/user/me", http.StatusFound)
 }
