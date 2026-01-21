@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: baloo
       POSTGRES_PASSWORD: junglebook
       POSTGRES_DB: lenslocked
+      TZ: "Europe/Berlin"
     ports:
       - 5432:5432
 
