@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/zeltbrennt/lenslocked/context"
 	"github.com/zeltbrennt/lenslocked/cookie"
@@ -130,7 +129,7 @@ func (u Users) HandleForgotPassword(w http.ResponseWriter, r *http.Request) {
 		"token": {pwReset.Token},
 	}
 	// TODO: use config type
-	resetURL := os.Getenv("DOMAIN") + "/reset-pw?" + vals.Encode()
+	resetURL := "http://localhost:3000/reset-pw?" + vals.Encode()
 	err = u.EmailService.ForgotPassword(data.Email, resetURL)
 	if err != nil {
 		log.Println(err)

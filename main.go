@@ -41,6 +41,9 @@ func main() {
 		TM: models.TokenManager{BytesPerToken: 32},
 	}
 	emailService := models.NewMailService(cfg.SMTP)
+	passwordResetService := &models.PasswordResetService{
+		DB: db,
+	}
 	// setup middleware
 	protection := http.NewCrossOriginProtection()
 	umw := mw.UserMiddleware{
@@ -48,9 +51,10 @@ func main() {
 	}
 	// setup controllers
 	userController := controllers.Users{
-		UserService:    userService,
-		SessionService: sessionService,
-		EmailService:   emailService,
+		UserService:          userService,
+		SessionService:       sessionService,
+		EmailService:         emailService,
+		PasswordResetService: passwordResetService,
 	}
 	userController.Templates.Signup = views.Must(views.ParseFS(templates.FS, "signup.html", "layout.html"))
 	userController.Templates.Signin = views.Must(views.ParseFS(templates.FS, "signin.html", "layout.html"))
